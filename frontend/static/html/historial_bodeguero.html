@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Historial — El Gran Poeta</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C0F0A;--bg2:#141712;--bg3:#1C2018;--bg4:#242820;
+  --gold:#C9A84C;--gold3:#3D3010;
+  --text:#E8E4DC;--text2:#9A9690;--text3:#5A5650;
+  --green2:#4CAF6A;--red:#5C2A2A;--red2:#CF6A4C;
+  --blue2:#4A8ACF;--border:#2E2B26;--border2:#3A3631;
+  --r:10px;--r2:6px;font-family:'DM Sans',sans-serif;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-size:14px}
+.role{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.role-jefe{background:#2a1f0a;color:var(--gold);border:1px solid var(--gold3)}
+.role-bod{background:#0a1f2a;color:var(--blue2);border:1px solid #124a5e}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);font-weight:700}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
+.btn-logout{background:none;border:1px solid var(--border2);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-logout:hover{border-color:var(--red2);color:var(--red2)}
+.layout{display:flex;height:calc(100vh - 58px)}
+.sidebar{width:215px;background:var(--bg2);border-right:1px solid var(--border);padding:1.25rem 0;flex-shrink:0;overflow-y:auto}
+.sidebar-section{margin-bottom:1.5rem}
+.sidebar-label{font-size:10px;letter-spacing:.12em;color:var(--text3);padding:0 1.25rem;margin-bottom:6px;text-transform:uppercase}
+.sidebar-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:13px;padding:8px 1.25rem;cursor:pointer;font-family:'DM Sans',sans-serif;border-left:2px solid transparent;text-decoration:none;transition:all .15s}
+.sidebar-item:hover{color:var(--text);background:var(--bg3)}
+.sidebar-item.active{color:var(--gold);background:var(--bg3);border-left-color:var(--gold)}
+.si-icon{font-size:15px;width:18px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:1.75rem 2rem}
+.page-header{margin-bottom:1.5rem}
+.page-header h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:600}
+.page-header p{font-size:12px;color:var(--text3);margin-top:3px}
+.page-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.page-header-row .page-header{margin-bottom:0}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.5rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem;text-align:center}
+.stat-num{font-size:30px;font-weight:600;color:var(--gold);font-family:'Playfair Display',serif;display:block}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:3px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+.card-header{padding:.875rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header h3{font-size:13px;font-weight:500;color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--bg3)}
+th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400}
+td{padding:10px 12px;border-bottom:1px solid var(--bg3);color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.b-libro{background:#1a2a1a;color:#4caf6a;border:1px solid #1a4a1a}
+.b-revista{background:#1a1a2a;color:#6a6acf;border:1px solid #1a1a4a}
+.b-enciclopedia{background:#2a1a1a;color:#cf6a4c;border:1px solid #4a1a1a}
+.b-ok{background:#0a2a1a;color:#4caf6a;border:1px solid #0a4a1a}
+.b-warn{background:#2a1a0a;color:#c9a84c;border:1px solid #3a2a0a}
+.btn{font-size:12px;padding:6px 14px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:opacity .2s;text-decoration:none;display:inline-block}
+.btn-gold{background:var(--gold);color:#0C0F0A;border:none}
+.btn-gold:hover{opacity:.85}
+.btn-ghost{background:none;border:1px solid var(--gold3);color:var(--gold)}
+.btn-ghost:hover{background:var(--gold3)}
+.btn-danger{background:none;border:1px solid var(--red);color:var(--red2)}
+.btn-danger:hover{background:var(--red)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-field{margin-bottom:12px}
+.form-field label{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.form-field input,.form-field select,.form-field textarea{width:100%;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--gold)}
+.form-field select option{background:#141712}
+.divider{border:none;border-bottom:1px solid var(--border);margin:.875rem 0}
+.alert{padding:10px 14px;border-radius:var(--r2);font-size:12px;margin-bottom:12px}
+.alert-success{background:#0a2a1a;border:1px solid #1a4a2a;color:#7acf8a}
+.alert-info{background:#0a1a2a;border:1px solid #1a3a5a;color:#7aaacf}
+.alert-error{background:#2a0a0a;border:1px solid #4a1a1a;color:#cf8a7a}
+.mono{font-family:monospace;color:var(--gold);font-size:11px}
+.stock-ok{color:var(--green2);font-weight:500}
+.stock-warn{color:var(--gold);font-weight:500}
+.stock-low{color:var(--red2);font-weight:500}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:12px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:490px;max-width:92vw;max-height:85vh;overflow-y:auto;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold3));border-radius:14px 14px 0 0}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.modal-header h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
+.btn-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1}
+.btn-close:hover{color:var(--text)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+
+</head>
+<body>
+
+    <div class="topbar">
+      <div class="topbar-logo">📚 El Gran Poeta</div>
+      <div class="topbar-user">
+        <span>María Torres</span>
+        <span class="role role-bod">Bodeguero</span>
+        <a href="login.html" class="btn-logout">Cerrar sesión</a>
+      </div>
+    </div>
+<div class="layout">
+  <nav class="sidebar"><div class="sidebar-section"><div class="sidebar-label">Operaciones</div><a href="dashboard_bodeguero.html" class="sidebar-item"><span class="si-icon">◈</span> Panel general</a><a href="inventario_bodeguero.html" class="sidebar-item"><span class="si-icon">≡</span> Inventario</a><a href="nuevo_movimiento.html" class="sidebar-item"><span class="si-icon">⇄</span> Nuevo movimiento</a><a href="historial_bodeguero.html" class="sidebar-item active"><span class="si-icon">◉</span> Historial</a></div></nav>
+  <div class="main">
+<div class="page-header"><h2>Historial de movimientos</h2><p>Traslados realizados por el bodeguero</p></div>
+<div class="card">
+  <table>
+    <thead><tr><th>Código</th><th>Fecha</th><th>Origen</th><th>Destino</th><th>Productos</th><th>Estado</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">MOV-2024-0001</td><td>15/10/2024</td><td>Bodega Central</td><td>Bodega Norte</td><td>2 productos</td><td><span class="badge b-ok">confirmado</span></td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+</div>
+
+<div id="modal-nodelete" class="modal-bg">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <h3 style="color:var(--red2)">No se puede eliminar</h3>
+      <button class="btn-close" onclick="document.getElementById('modal-nodelete').classList.remove('open')">×</button>
+    </div>
+    <p id="nodelete-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6"></p>
+    <button class="btn btn-ghost" onclick="document.getElementById('modal-nodelete').classList.remove('open')">Entendido</button>
+  </div>
+</div>
+<div id="modal-ok" class="modal-bg">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div style="font-size:36px;margin-bottom:.75rem">✓</div>
+    <h3 style="color:var(--green2);margin-bottom:.75rem;font-family:'Playfair Display',serif">Guardado correctamente</h3>
+    <p id="ok-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem"></p>
+    <button class="btn btn-gold" onclick="document.getElementById('modal-ok').classList.remove('open')">Aceptar</button>
+  </div>
+</div>
+<script>
+function noDelete(tipo){
+  const msgs={editorial:'No se puede eliminar: la editorial tiene productos asignados.',autor:'No se puede eliminar: el autor tiene productos asignados.',producto:'No se puede eliminar: el producto tiene stock en bodegas.',bodega:'No se puede eliminar: la bodega tiene productos en stock.'};
+  document.getElementById('nodelete-msg').textContent=msgs[tipo];
+  document.getElementById('modal-nodelete').classList.add('open');
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
+</script>
+
+</body>
+</html>
