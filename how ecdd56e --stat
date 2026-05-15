@@ -1,0 +1,19 @@
+[33mcommit b3d6c1e9fa870a5aa648da166f6f9d0e1cef9b83[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Justhynjara <143666110+Justhynjara@users.noreply.github.com>
+Date:   Sat May 9 19:57:34 2026 -0400
+
+    Actualización del proyecto
+
+ backend/Dockerfile                        |  12 [32m+++[m
+ backend/package.json                      |  20 [32m+++++[m
+ backend/src/app.js                        |  30 [32m++++++[m[31m-[m
+ backend/src/config/db.js                  |  24 [32m+++++[m
+ backend/src/middlewares/authMiddleware.js |  21 [32m+++[m[31m--[m
+ backend/src/routes/authRoutes.js          |  50 [32m+++++++++++[m
+ backend/src/routes/bodegasRoutes.js       |  46 [32m++++++++++[m
+ backend/src/routes/inventarioRoutes.js    |  34 [32m+++++++[m
+ backend/src/routes/movimientosRoutes.js   |  92 [32m+++++++++++++++++++[m
+ backend/src/routes/productosRoutes.js     |  51 [32m+++++++++++[m
+ docker-compose.yml                        |  44 [32m++++++++[m[31m-[m
+ frontend/static/api/api.js                | 143 [32m++++++++++++++++++++++++++++++[m
+ 12 files changed, 554 insertions(+), 13 deletions(-)
