@@ -94,6 +94,7 @@ tr:hover td{background:var(--bg3)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 
+<script src="../api/api.js"></script>
 </head>
 <body>
 
@@ -160,5 +161,8 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => { requiereAuth(); initTopbar(); });
+</script>
 </body>
 </html>

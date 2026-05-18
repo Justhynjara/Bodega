@@ -82,13 +82,12 @@ CREATE TABLE inventario_bodega (
 -- ======================
 CREATE TABLE movimientos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    codigo VARCHAR(50) UNIQUE,
-    bodega_origen_id INT,
-    bodega_destino_id INT,
-    usuario_id INT,
+    tipo ENUM('entrada','salida') NOT NULL,
+    bodega_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    observacion TEXT,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (bodega_origen_id) REFERENCES bodegas(id),
-    FOREIGN KEY (bodega_destino_id) REFERENCES bodegas(id),
+    FOREIGN KEY (bodega_id) REFERENCES bodegas(id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
@@ -97,9 +96,46 @@ CREATE TABLE movimientos (
 -- ======================
 CREATE TABLE detalle_movimiento (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    movimiento_id INT,
-    producto_id INT,
-    cantidad INT,
+    movimiento_id INT NOT NULL,
+    producto_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    precio_unitario DECIMAL(10,2) DEFAULT 0,
     FOREIGN KEY (movimiento_id) REFERENCES movimientos(id),
     FOREIGN KEY (producto_id) REFERENCES productos(id)
 );
+-- ======================
+-- DATOS INICIALES
+-- ======================
+INSERT INTO usuarios (nombre, email, password_hash, perfil) VALUES
+('Carlos Rojas', 'carlos@granpoeta.cl', '$2a$10$LhsBMVspalAo72DmWoH4ieyApqqhvaR42c1iZS2xoYETX4uQHylrq', 'jefe_bodega'),
+('María Torres', 'maria@granpoeta.cl', '$2a$10$ePp5Y.zWN9jfzeRF63LYIuXatiCRnxs9EO0Q0K9MNJsfWQZcp5cbG', 'bodeguero');
+
+INSERT INTO editoriales (nombre, contacto) VALUES
+('Planeta', 'contacto@planeta.cl'),
+('Alfaguara', 'contacto@alfaguara.cl'),
+('Zigzag', 'contacto@zigzag.cl'),
+('LOM Ediciones', 'contacto@lom.cl');
+
+INSERT INTO bodegas (codigo, nombre, ubicacion) VALUES
+('BOD-001', 'Bodega Central', 'Av. Providencia 123, Santiago'),
+('BOD-002', 'Bodega Norte', 'Av. Recoleta 567, Santiago'),
+('BOD-003', 'Bodega Surponiente', 'Gran Avenida 890, Santiago');
+
+
+
+-- ======================
+-- DATOS DE PRUEBA
+-- ======================
+INSERT INTO autores (nombre, apellido, nacionalidad) VALUES
+('Pablo', 'Neruda', 'Chilena'),
+('Isabel', 'Allende', 'Chilena'),
+('Jorge', 'Baradit', 'Chilena'),
+('Gabriela', 'Mistral', 'Chilena');
+
+INSERT INTO productos (titulo, tipo, descripcion, editorial_id) VALUES
+('Canto General', 'libro', 'Obra cumbre de Pablo Neruda', 1),
+('La Casa de los Espíritus', 'libro', 'Novela de Isabel Allende', 2),
+('Historia Secreta de Chile', 'libro', 'Historia alternativa de Chile', 3),
+('Poemas Selectos', 'libro', 'Antología de G. Mistral', 4),
+('Revista Qué Pasa', 'revista', 'Edición mensual', 1),
+('Enciclopedia Chilena Vol.1', 'enciclopedia', 'Volumen 1', 3);

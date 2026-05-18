@@ -94,6 +94,7 @@ tr:hover td{background:var(--bg3)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 
+<script src="../api/api.js"></script>
 </head>
 <body>
 
@@ -128,16 +129,16 @@ tr:hover td{background:var(--bg3)}
 <div id="modal-producto" class="modal-bg">
   <div class="modal">
     <div class="modal-header"><h3>Nuevo producto</h3><button class="btn-close" onclick="closeModal('modal-producto')">×</button></div>
-    <div class="form-field"><label>Título</label><input type="text" placeholder="Título del producto"/></div>
+    <div id="prod-error" class="alert alert-error" style="display:none"></div>
+    <div class="form-field"><label>Título</label><input id="inp-titulo" type="text" placeholder="Título del producto"/></div>
     <div class="form-row">
-      <div class="form-field"><label>Tipo</label><select><option>libro</option><option>revista</option><option>enciclopedia</option></select></div>
-      <div class="form-field"><label>Editorial</label><select><option>Planeta</option><option>Alfaguara</option><option>Zigzag</option><option>LOM Ediciones</option></select></div>
+      <div class="form-field"><label>Tipo</label><select id="sel-tipo"><option value="libro">libro</option><option value="revista">revista</option><option value="enciclopedia">enciclopedia</option></select></div>
+      <div class="form-field"><label>Editorial</label><select id="sel-editorial"><option value="">— Cargando… —</option></select></div>
     </div>
-    <div class="form-field"><label>Descripción</label><textarea rows="3" style="resize:vertical" placeholder="Breve resumen…"></textarea></div>
-    <div class="form-field"><label>Autores</label><select><option value="">— Seleccionar autor —</option><option>Pablo Neruda</option><option>Isabel Allende</option><option>Jorge Baradit</option><option>Gabriela Mistral</option></select></div>
+    <div class="form-field"><label>Descripción</label><textarea id="txt-desc" rows="3" style="resize:vertical" placeholder="Breve resumen…"></textarea></div>
     <div style="display:flex;gap:8px;margin-top:.5rem">
       <button class="btn btn-ghost" onclick="closeModal('modal-producto')">Cancelar</button>
-      <button class="btn btn-gold" onclick="closeModal('modal-producto');document.getElementById('ok-msg').textContent='Producto guardado correctamente.';openModal('modal-ok')">Guardar</button>
+      <button id="btn-guardar-prod" class="btn btn-gold" onclick="guardarProducto()">Guardar</button>
     </div>
   </div>
 </div>
@@ -163,6 +164,53 @@ tr:hover td{background:var(--bg3)}
   </div>
 </div>
 <script>
+async function guardarProducto() {
+  const titulo = document.getElementById('inp-titulo').value.trim();
+  const tipo = document.getElementById('sel-tipo').value;
+  const editorial_id = document.getElementById('sel-editorial').value;
+  const descripcion = document.getElementById('txt-desc').value.trim();
+  const errEl = document.getElementById('prod-error');
+  errEl.style.display = 'none';
+  if (!titulo) { errEl.textContent = 'El título es obligatorio.'; errEl.style.display = 'block'; return; }
+  if (!editorial_id) { errEl.textContent = 'Selecciona una editorial.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('btn-guardar-prod');
+  btn.textContent = 'Guardando…'; btn.disabled = true;
+  try {
+    await Productos.crear({ titulo, tipo, descripcion, editorial_id });
+    closeModal('modal-producto');
+    document.getElementById('ok-msg').textContent = 'Producto guardado correctamente.';
+    openModal('modal-ok');
+    await cargarProductos();
+  } catch (err) {
+    errEl.textContent = 'Error: ' + err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Guardar'; btn.disabled = false;
+  }
+}
+async function cargarEditoriales() {
+  try {
+    const rows = await apiFetch('/editoriales');
+    const sel = document.getElementById('sel-editorial');
+    sel.innerHTML = '<option value="">— Seleccionar editorial —</option>' +
+      rows.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+  } catch (e) { console.warn('No se pudo cargar editoriales', e); }
+}
+async function cargarProductos() {
+  try {
+    const rows = await Productos.listar();
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = rows.map(p => `
+      <tr>
+        <td><div style="font-weight:500;color:var(--text)">${p.titulo}</div><div style="font-size:11px;color:var(--text3)">${p.descripcion || ''}</div></td>
+        <td><span class="badge b-${p.tipo}">${p.tipo}</span></td>
+        <td>${p.editorial || '—'}</td>
+        <td>—</td>
+        <td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td>
+      </tr>`).join('');
+  } catch (e) { console.warn('No se pudo cargar productos', e); }
+}
 function noDelete(tipo){
   const msgs={editorial:'No se puede eliminar: la editorial tiene productos asignados.',autor:'No se puede eliminar: el autor tiene productos asignados.',producto:'No se puede eliminar: el producto tiene stock en bodegas.',bodega:'No se puede eliminar: la bodega tiene productos en stock.'};
   document.getElementById('nodelete-msg').textContent=msgs[tipo];
@@ -171,7 +219,11 @@ function noDelete(tipo){
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
-</script>
-
-</body>
+document.addEventListener('DOMContentLoaded', () => {
+  requiereAuth();
+  initTopbar();
+  cargarEditoriales();
+  cargarProductos();
+});
+</script></body>
 </html>

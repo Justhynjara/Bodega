@@ -94,6 +94,7 @@ tr:hover td{background:var(--bg3)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 
+<script src="../api/api.js"></script>
 </head>
 <body>
 
@@ -141,14 +142,15 @@ tr:hover td{background:var(--bg3)}
 <div id="modal-bodega" class="modal-bg">
   <div class="modal">
     <div class="modal-header"><h3>Nueva bodega</h3><button class="btn-close" onclick="closeModal('modal-bodega')">×</button></div>
+    <div id="bod-error" class="alert alert-error" style="display:none"></div>
     <div class="form-row">
-      <div class="form-field"><label>Código único</label><input type="text" placeholder="BOD-004"/></div>
-      <div class="form-field"><label>Nombre</label><input type="text" placeholder="Nombre bodega"/></div>
+      <div class="form-field"><label>Código único</label><input id="inp-codigo" type="text" placeholder="BOD-004"/></div>
+      <div class="form-field"><label>Nombre</label><input id="inp-nombre" type="text" placeholder="Nombre bodega"/></div>
     </div>
-    <div class="form-field"><label>Ubicación</label><input type="text" placeholder="Dirección"/></div>
+    <div class="form-field"><label>Ubicación</label><input id="inp-ubic" type="text" placeholder="Dirección"/></div>
     <div style="display:flex;gap:8px;margin-top:.5rem">
       <button class="btn btn-ghost" onclick="closeModal('modal-bodega')">Cancelar</button>
-      <button class="btn btn-gold" onclick="closeModal('modal-bodega');document.getElementById('ok-msg').textContent='Bodega creada correctamente.';openModal('modal-ok')">Guardar</button>
+      <button id="btn-guardar-bod" class="btn btn-gold" onclick="guardarBodega()">Guardar</button>
     </div>
   </div>
 </div>
@@ -174,6 +176,28 @@ tr:hover td{background:var(--bg3)}
   </div>
 </div>
 <script>
+async function guardarBodega() {
+  const nombre = document.getElementById('inp-nombre').value.trim();
+  const codigo = document.getElementById('inp-codigo').value.trim();
+  const ubicacion = document.getElementById('inp-ubic').value.trim();
+  const errEl = document.getElementById('bod-error');
+  errEl.style.display = 'none';
+  if (!nombre || !codigo) { errEl.textContent = 'Nombre y código son obligatorios.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('btn-guardar-bod');
+  btn.textContent = 'Guardando…'; btn.disabled = true;
+  try {
+    await Bodegas.crear({ nombre, codigo, ubicacion });
+    closeModal('modal-bodega');
+    document.getElementById('ok-msg').textContent = 'Bodega creada correctamente.';
+    openModal('modal-ok');
+    location.reload();
+  } catch (err) {
+    errEl.textContent = 'Error: ' + err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Guardar'; btn.disabled = false;
+  }
+}
 function noDelete(tipo){
   const msgs={editorial:'No se puede eliminar: la editorial tiene productos asignados.',autor:'No se puede eliminar: el autor tiene productos asignados.',producto:'No se puede eliminar: el producto tiene stock en bodegas.',bodega:'No se puede eliminar: la bodega tiene productos en stock.'};
   document.getElementById('nodelete-msg').textContent=msgs[tipo];
@@ -182,7 +206,6 @@ function noDelete(tipo){
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
-</script>
-
-</body>
+document.addEventListener('DOMContentLoaded', () => { requiereAuth(); initTopbar(); });
+</script></body>
 </html>

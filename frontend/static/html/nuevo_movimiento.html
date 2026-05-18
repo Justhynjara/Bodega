@@ -94,6 +94,7 @@ tr:hover td{background:var(--bg3)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
 
+<script src="../api/api.js"></script>
 </head>
 <body>
 
@@ -120,21 +121,11 @@ tr:hover td{background:var(--bg3)}
   <div class="form-row">
     <div class="form-field">
       <label>Bodega origen</label>
-      <select id="sel-origen">
-        <option value="">Seleccionar…</option>
-        <option value="Bodega Central">BOD-001 — Bodega Central</option>
-        <option value="Bodega Norte">BOD-002 — Bodega Norte</option>
-        <option value="Bodega Surponiente">BOD-003 — Bodega Surponiente</option>
-      </select>
+      <select id="sel-origen"><option value="">Cargando bodegas…</option></select>
     </div>
     <div class="form-field">
       <label>Bodega destino</label>
-      <select id="sel-destino">
-        <option value="">Seleccionar…</option>
-        <option value="Bodega Central">BOD-001 — Bodega Central</option>
-        <option value="Bodega Norte">BOD-002 — Bodega Norte</option>
-        <option value="Bodega Surponiente">BOD-003 — Bodega Surponiente</option>
-      </select>
+      <select id="sel-destino"><option value="">Cargando bodegas…</option></select>
     </div>
   </div>
   <div id="err-paso1" class="alert alert-error" style="display:none"></div>
@@ -145,15 +136,7 @@ tr:hover td{background:var(--bg3)}
   <div class="form-card">
     <div style="font-size:12px;color:var(--text3);margin-bottom:.875rem">Selecciona los productos a trasladar:</div>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <select id="sel-prod" style="flex:2;min-width:200px;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif">
-        <option value="">Seleccionar producto…</option>
-        <option value="Canto General">Canto General (stock: 50)</option>
-        <option value="La Casa de los Espíritus">La Casa de los Espíritus (stock: 30)</option>
-        <option value="Historia Secreta de Chile">Historia Secreta de Chile (stock: 20)</option>
-        <option value="Poemas Selectos">Poemas Selectos (stock: 15)</option>
-        <option value="Revista Qué Pasa">Revista Qué Pasa (stock: 100)</option>
-        <option value="Enciclopedia Chilena">Enciclopedia Chilena (stock: 10)</option>
-      </select>
+      <select id="sel-prod" style="flex:2;min-width:200px;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif"><option value="">Cargando productos…</option></select>
       <input type="number" id="inp-qty" min="1" value="1" style="width:75px;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif"/>
       <button class="btn btn-ghost" onclick="addProducto()">+ Agregar</button>
     </div>
@@ -199,89 +182,131 @@ tr:hover td{background:var(--bg3)}
 .step.active{border-color:var(--gold);color:var(--gold);background:#1a1200}
 </style>
 <script>
-let prodList=[];let movCount=2;
-function irPaso2(){
-  const o=document.getElementById('sel-origen').value;
-  const d=document.getElementById('sel-destino').value;
-  const err=document.getElementById('err-paso1');
-  if(!o||!d){err.textContent='Selecciona bodega origen y destino.';err.style.display='block';return;}
-  if(o===d){err.textContent='La bodega origen y destino deben ser distintas.';err.style.display='block';return;}
-  err.style.display='none';
-  document.getElementById('paso1').style.display='none';
-  document.getElementById('paso2').style.display='block';
+let prodList = [];
+let bodegasList = [];
+
+async function cargarBodegas() {
+  try {
+    bodegasList = await Bodegas.listar();
+    const opts = '<option value="">Seleccionar…</option>' +
+      bodegasList.map(b => `<option value="${b.id}">${b.codigo} — ${b.nombre}</option>`).join('');
+    document.getElementById('sel-origen').innerHTML = opts;
+    document.getElementById('sel-destino').innerHTML = opts;
+  } catch (e) { console.error('Error cargando bodegas', e); }
+}
+
+async function cargarProductosPaso2() {
+  try {
+    const rows = await Productos.listar();
+    const sel = document.getElementById('sel-prod');
+    sel.innerHTML = '<option value="">Seleccionar producto…</option>' +
+      rows.map(p => `<option value="${p.id}" data-nombre="${p.titulo}">${p.titulo}</option>`).join('');
+  } catch (e) { console.error('Error cargando productos', e); }
+}
+
+function irPaso2() {
+  const o = document.getElementById('sel-origen').value;
+  const d = document.getElementById('sel-destino').value;
+  const err = document.getElementById('err-paso1');
+  if (!o || !d) { err.textContent = 'Selecciona bodega origen y destino.'; err.style.display = 'block'; return; }
+  if (o === d) { err.textContent = 'La bodega origen y destino deben ser distintas.'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  document.getElementById('paso1').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
   document.getElementById('step2').classList.add('active');
-  prodList=[];renderProdList();
+  prodList = []; renderProdList();
+  cargarProductosPaso2();
 }
-function volverPaso1(){document.getElementById('paso2').style.display='none';document.getElementById('paso1').style.display='block';document.getElementById('step2').classList.remove('active');}
-function addProducto(){
-  const p=document.getElementById('sel-prod').value;
-  const q=parseInt(document.getElementById('inp-qty').value)||1;
-  if(!p){alert('Selecciona un producto.');return;}
-  if(prodList.find(x=>x.nombre===p)){alert('Producto ya agregado.');return;}
-  prodList.push({nombre:p,cantidad:q});renderProdList();
+
+function volverPaso1() {
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso1').style.display = 'block';
+  document.getElementById('step2').classList.remove('active');
 }
-function removeProd(i){prodList.splice(i,1);renderProdList();}
-function renderProdList(){
-  const el=document.getElementById('lista-productos');
-  if(!prodList.length){el.innerHTML='<div class="empty">Agrega al menos un producto para continuar</div>';return;}
-  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="background:var(--bg3)"><th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase">Producto</th><th style="padding:7px 10px;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase">Cantidad</th><th></th></tr></thead><tbody>${prodList.map((p,i)=>`<tr><td style="padding:9px 10px;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.nombre}</td><td style="padding:9px 10px;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.cantidad}</td><td style="padding:9px 10px;border-bottom:1px solid var(--bg3)"><button onclick="removeProd(${i})" style="background:none;border:none;color:var(--red2);cursor:pointer;font-size:14px">✕</button></td></tr>`).join('')}</tbody></table>`;
+
+function addProducto() {
+  const sel = document.getElementById('sel-prod');
+  const id = sel.value;
+  const nombre = sel.options[sel.selectedIndex]?.dataset.nombre;
+  const q = parseInt(document.getElementById('inp-qty').value) || 1;
+  if (!id) { alert('Selecciona un producto.'); return; }
+  if (prodList.find(x => x.id == id)) { alert('Producto ya agregado.'); return; }
+  prodList.push({ id, nombre, cantidad: q }); renderProdList();
 }
-function irPaso3(){
-  if(!prodList.length){alert('Agrega al menos un producto.');return;}
-  const o=document.getElementById('sel-origen').value;
-  const d=document.getElementById('sel-destino').value;
-  document.getElementById('prev-origen').textContent=o;
-  document.getElementById('prev-destino').textContent=d;
-  const hoy=new Date();
-  document.getElementById('prev-fecha').textContent=hoy.toLocaleDateString('es-CL')+' '+hoy.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-  const total=prodList.reduce((s,p)=>s+p.cantidad,0);
-  document.getElementById('prev-detalle').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="padding:7px 0;text-align:left;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--border)">Producto</th><th style="padding:7px 0;text-align:right;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--border)">Cantidad</th></tr></thead><tbody>${prodList.map(p=>`<tr><td style="padding:8px 0;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.nombre}</td><td style="padding:8px 0;color:var(--text);text-align:right;border-bottom:1px solid var(--bg3)">${p.cantidad}</td></tr>`).join('')}<tr><td style="padding:8px 0;font-weight:500;color:var(--text)">Total</td><td style="padding:8px 0;font-weight:500;color:var(--gold);text-align:right">${total}</td></tr></tbody></table>`;
-  document.getElementById('paso2').style.display='none';
-  document.getElementById('paso3').style.display='block';
+
+function removeProd(i) { prodList.splice(i, 1); renderProdList(); }
+
+function renderProdList() {
+  const el = document.getElementById('lista-productos');
+  if (!prodList.length) { el.innerHTML = '<div class="empty">Agrega al menos un producto para continuar</div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:var(--bg3)">
+      <th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase">Producto</th>
+      <th style="padding:7px 10px;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase">Cantidad</th>
+      <th></th></tr></thead><tbody>
+    ${prodList.map((p, i) => `<tr>
+      <td style="padding:9px 10px;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.nombre}</td>
+      <td style="padding:9px 10px;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.cantidad}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid var(--bg3)"><button onclick="removeProd(${i})" style="background:none;border:none;color:var(--red2);cursor:pointer;font-size:14px">✕</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function irPaso3() {
+  if (!prodList.length) { alert('Agrega al menos un producto.'); return; }
+  const oId = document.getElementById('sel-origen').value;
+  const dId = document.getElementById('sel-destino').value;
+  const oNom = bodegasList.find(b => b.id == oId)?.nombre || oId;
+  const dNom = bodegasList.find(b => b.id == dId)?.nombre || dId;
+  document.getElementById('prev-origen').textContent = oNom;
+  document.getElementById('prev-destino').textContent = dNom;
+  const hoy = new Date();
+  document.getElementById('prev-fecha').textContent = hoy.toLocaleDateString('es-CL') + ' ' + hoy.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  const total = prodList.reduce((s, p) => s + p.cantidad, 0);
+  document.getElementById('prev-detalle').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr>
+        <th style="padding:7px 0;text-align:left;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--border)">Producto</th>
+        <th style="padding:7px 0;text-align:right;font-size:10px;color:var(--text3);font-weight:400;text-transform:uppercase;border-bottom:1px solid var(--border)">Cantidad</th>
+      </tr></thead><tbody>
+      ${prodList.map(p => `<tr>
+        <td style="padding:8px 0;color:var(--text2);border-bottom:1px solid var(--bg3)">${p.nombre}</td>
+        <td style="padding:8px 0;color:var(--text);text-align:right;border-bottom:1px solid var(--bg3)">${p.cantidad}</td>
+      </tr>`).join('')}
+      <tr><td style="padding:8px 0;font-weight:500;color:var(--text)">Total</td>
+          <td style="padding:8px 0;font-weight:500;color:var(--gold);text-align:right">${total}</td></tr>
+    </tbody></table>`;
+  document.getElementById('paso2').style.display = 'none';
+  document.getElementById('paso3').style.display = 'block';
   document.getElementById('step3').classList.add('active');
 }
-function volverPaso2(){document.getElementById('paso3').style.display='none';document.getElementById('paso2').style.display='block';document.getElementById('step3').classList.remove('active');}
-function confirmarMov(){
-  const año=new Date().getFullYear();
-  const codigo=`MOV-${año}-${String(movCount).padStart(4,'0')}`;
-  movCount++;
-  document.getElementById('msg-codigo').textContent=codigo;
-  document.getElementById('paso3').style.display='none';
-  document.getElementById('paso4').style.display='block';
-  document.getElementById('step4').classList.add('active');
-}
-</script>
-</div>
-</div>
 
-<div id="modal-nodelete" class="modal-bg">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-header">
-      <h3 style="color:var(--red2)">No se puede eliminar</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-nodelete').classList.remove('open')">×</button>
-    </div>
-    <p id="nodelete-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6"></p>
-    <button class="btn btn-ghost" onclick="document.getElementById('modal-nodelete').classList.remove('open')">Entendido</button>
-  </div>
-</div>
-<div id="modal-ok" class="modal-bg">
-  <div class="modal" style="max-width:340px;text-align:center">
-    <div style="font-size:36px;margin-bottom:.75rem">✓</div>
-    <h3 style="color:var(--green2);margin-bottom:.75rem;font-family:'Playfair Display',serif">Guardado correctamente</h3>
-    <p id="ok-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem"></p>
-    <button class="btn btn-gold" onclick="document.getElementById('modal-ok').classList.remove('open')">Aceptar</button>
-  </div>
-</div>
-<script>
-function noDelete(tipo){
-  const msgs={editorial:'No se puede eliminar: la editorial tiene productos asignados.',autor:'No se puede eliminar: el autor tiene productos asignados.',producto:'No se puede eliminar: el producto tiene stock en bodegas.',bodega:'No se puede eliminar: la bodega tiene productos en stock.'};
-  document.getElementById('nodelete-msg').textContent=msgs[tipo];
-  document.getElementById('modal-nodelete').classList.add('open');
+function volverPaso2() {
+  document.getElementById('paso3').style.display = 'none';
+  document.getElementById('paso2').style.display = 'block';
+  document.getElementById('step3').classList.remove('active');
 }
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
-</script>
 
-</body>
+async function confirmarMov() {
+  const bodega_id = document.getElementById('sel-destino').value;
+  const detalle = prodList.map(p => ({ producto_id: p.id, cantidad: p.cantidad, precio_unitario: 0 }));
+  const btn = document.querySelector('#paso3 .btn-gold');
+  btn.textContent = 'Registrando…'; btn.disabled = true;
+  try {
+    const res = await Movimientos.registrar({ tipo: 'entrada', bodega_id, observacion: '', detalle });
+    document.getElementById('msg-codigo').textContent = 'Movimiento #' + res.id + ' registrado.';
+    document.getElementById('paso3').style.display = 'none';
+    document.getElementById('paso4').style.display = 'block';
+    document.getElementById('step4').classList.add('active');
+  } catch (err) {
+    alert('Error al registrar movimiento: ' + err.message);
+    btn.textContent = 'Confirmar y ejecutar ✓'; btn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  requiereAuth();
+  initTopbar();
+  cargarBodegas();
+});
+</script></body>
 </html>
