@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vendedor — El Gran Poeta</title>
+<script src="../api/api.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C0F0A;--bg2:#141712;--bg3:#1C2018;
+  --gold:#C9A84C;--gold3:#3D3010;
+  --text:#E8E4DC;--text2:#9A9690;--text3:#5A5650;
+  --green2:#4CAF6A;--green3:#0a2a1a;--green4:#1a4a2a;
+  --red:#5C2A2A;--red2:#CF6A4C;
+  --blue2:#4A8ACF;--border:#2E2B26;--border2:#3A3631;
+  --r:10px;--r2:6px;font-family:'DM Sans',sans-serif;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-size:14px}
+.role{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.role-vend{background:#0a2a1a;color:var(--green2);border:1px solid #0a4a1a}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);font-weight:700}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
+.btn-logout{background:none;border:1px solid var(--border2);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:var(--r2);cursor:pointer}
+.btn-logout:hover{border-color:var(--red2);color:var(--red2)}
+.layout{display:flex;height:calc(100vh - 58px)}
+.sidebar{width:215px;background:var(--bg2);border-right:1px solid var(--border);padding:1.25rem 0;flex-shrink:0}
+.sidebar-section{margin-bottom:1.5rem}
+.sidebar-label{font-size:10px;letter-spacing:.12em;color:var(--text3);padding:0 1.25rem;margin-bottom:6px;text-transform:uppercase}
+.sidebar-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:13px;padding:8px 1.25rem;cursor:pointer;font-family:'DM Sans',sans-serif;border-left:2px solid transparent;text-decoration:none;transition:all .15s}
+.sidebar-item:hover{color:var(--text);background:var(--bg3)}
+.sidebar-item.active{color:var(--gold);background:var(--bg3);border-left-color:var(--gold)}
+.si-icon{font-size:15px;width:18px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:1.75rem 2rem}
+.page-header{margin-bottom:1.5rem}
+.page-header h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:600}
+.page-header p{font-size:12px;color:var(--text3);margin-top:3px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+.stat-value{font-size:26px;font-weight:600;color:var(--text);font-family:'Playfair Display',serif}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+.card-header{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-header h3{font-size:13px;font-weight:500;color:var(--text2)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--bg3)}
+th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400}
+td{padding:10px 12px;border-bottom:1px solid var(--bg3);color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.b-venta{background:#0a2a1a;color:#4caf6a;border:1px solid #1a4a1a}
+.b-devolucion{background:#1a1a2a;color:#6a6acf;border:1px solid #1a1a4a}
+.btn{font-size:12px;padding:7px 16px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:opacity .2s;border:none}
+.btn-gold{background:var(--gold);color:#0C0F0A}
+.btn-gold:hover{opacity:.85}
+.btn-green{background:#1a4a2a;color:var(--green2);border:1px solid #2a6a3a}
+.btn-green:hover{opacity:.85}
+.btn-blue{background:#1a2a4a;color:var(--blue2);border:1px solid #2a3a6a}
+.btn-blue:hover{opacity:.85}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:12px}
+.stock-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.stock-ok{color:var(--green2);background:#0a2a1a;border:1px solid #1a4a2a}
+.stock-low{color:#cfaa4c;background:#2a1f0a;border:1px solid #4a3a1a}
+.stock-zero{color:var(--red2);background:var(--red);border:1px solid #4a2a2a}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">📚 El Gran Poeta</div>
+  <div class="topbar-user">
+    <span id="topbar-nombre"></span>
+    <span id="topbar-rol" class="role role-vend"></span>
+    <button id="btn-logout" class="btn-logout">Cerrar sesión</button>
+  </div>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mi bodega</div>
+      <a href="dashboard_vendedor.html" class="sidebar-item active"><span class="si-icon">◈</span> Panel</a>
+      <a href="vender.html" class="sidebar-item"><span class="si-icon">$</span> Nueva venta</a>
+      <a href="devolucion.html" class="sidebar-item"><span class="si-icon">↩</span> Devolución</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Consultas</div>
+      <a href="stock_vendedor.html" class="sidebar-item"><span class="si-icon">≡</span> Ver stock</a>
+      <a href="historial_vendedor.html" class="sidebar-item"><span class="si-icon">⇄</span> Historial</a>
+    </div>
+  </nav>
+  <div class="main">
+    <div class="page-header">
+      <h2 id="titulo-bodega">Mi Bodega</h2>
+      <p id="subtitulo-bodega">Cargando información…</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Productos disponibles</div>
+        <div class="stat-value" id="stat-productos">—</div>
+        <div class="stat-sub">Con stock mayor a 0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Ventas hoy</div>
+        <div class="stat-value" id="stat-ventas">—</div>
+        <div class="stat-sub">Transacciones registradas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Devoluciones hoy</div>
+        <div class="stat-value" id="stat-devoluciones">—</div>
+        <div class="stat-sub">Productos devueltos</div>
+      </div>
+    </div>
+
+    <!-- Stock de mi bodega -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Stock de mi bodega</h3>
+        <a href="vender.html" class="btn btn-gold" style="text-decoration:none;font-size:11px;padding:5px 12px">+ Nueva venta</a>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Producto</th><th>Tipo</th><th>Disponible</th></tr>
+        </thead>
+        <tbody id="tbody-stock">
+          <tr><td colspan="3" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Últimas transacciones -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Últimas transacciones</h3>
+        <a href="historial_vendedor.html" class="btn btn-ghost" style="text-decoration:none;font-size:11px;padding:5px 12px">Ver todo</a>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>Productos</th><th>Fecha</th></tr>
+        </thead>
+        <tbody id="tbody-historial">
+          <tr><td colspan="3" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+async function cargarDashboard() {
+  const usuario = obtenerUsuario();
+
+  // Título de la bodega
+  try {
+    const bodegas = await Bodegas.listar();
+    const miB = bodegas.find(b => b.id == usuario.bodega_id);
+    if (miB) {
+      document.getElementById('titulo-bodega').textContent  = miB.nombre;
+      document.getElementById('subtitulo-bodega').textContent = miB.ubicacion || miB.codigo;
+    }
+  } catch(e) {}
+
+  // Stock
+  try {
+    const stock = await Ventas.stock();
+    document.getElementById('stat-productos').textContent = stock.length;
+
+    const tbody = document.getElementById('tbody-stock');
+    if (!stock.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="empty">Sin stock disponible</td></tr>';
+    } else {
+      tbody.innerHTML = stock.map(s => {
+        const cls = s.cantidad >= 10 ? 'stock-ok' : s.cantidad > 0 ? 'stock-low' : 'stock-zero';
+        return `<tr>
+          <td style="color:var(--text);font-weight:500">${s.titulo}</td>
+          <td>${s.tipo}</td>
+          <td><span class="stock-badge ${cls}">${s.cantidad} uds.</span></td>
+        </tr>`;
+      }).join('');
+    }
+  } catch(e) { console.error(e); }
+
+  // Historial
+  try {
+    const hist = await Ventas.historial();
+    const hoy  = new Date().toDateString();
+    const ventasHoy = hist.filter(h => new Date(h.fecha).toDateString() === hoy && h.tipo === 'venta').length;
+    const devHoy    = hist.filter(h => new Date(h.fecha).toDateString() === hoy && h.tipo === 'devolucion').length;
+    document.getElementById('stat-ventas').textContent      = ventasHoy;
+    document.getElementById('stat-devoluciones').textContent = devHoy;
+
+    const tbody = document.getElementById('tbody-historial');
+    const ultimos = hist.slice(0, 8);
+    if (!ultimos.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="empty">Sin transacciones</td></tr>';
+    } else {
+      tbody.innerHTML = ultimos.map(h => `<tr>
+        <td><span class="badge b-${h.tipo}">${h.tipo}</span></td>
+        <td style="color:var(--text2)">${h.productos}</td>
+        <td style="color:var(--text3)">${new Date(h.fecha).toLocaleString('es-CL',{dateStyle:'short',timeStyle:'short'})}</td>
+      </tr>`).join('');
+    }
+  } catch(e) { console.error(e); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  requiereAuth();
+  initTopbar();
+  // Redirigir si no es vendedor
+  const u = obtenerUsuario();
+  if (u && u.perfil !== 'vendedor') window.location.href = 'dashboard_jefe.html';
+  cargarDashboard();
+});
+</script>
+</body>
+</html>

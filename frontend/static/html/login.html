@@ -41,7 +41,6 @@ html,body{min-height:100vh;background:radial-gradient(ellipse at 30% 40%,#1a1f10
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid #0C0F0A;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-<script src="../api/api.js" type="module"></script>
 </head>
 <body>
 <div class="login-card">
@@ -70,6 +69,18 @@ html,body{min-height:100vh;background:radial-gradient(ellipse at 30% 40%,#1a1f10
     <button class="demo-btn" onclick="quickLogin('bod')">
       <span><b style="color:var(--text)">María Torres</b> — maria@granpoeta.cl</span>
       <span class="role role-bod">Bodeguero</span>
+    </button>
+    <button class="demo-btn" onclick="quickLogin('vend1')">
+      <span><b style="color:var(--text)">Juan Vendedor</b> — juan@granpoeta.cl</span>
+      <span class="role role-vend">Vendedor — BOD-001</span>
+    </button>
+    <button class="demo-btn" onclick="quickLogin('vend2')">
+      <span><b style="color:var(--text)">Ana Vendedora</b> — ana@granpoeta.cl</span>
+      <span class="role role-vend">Vendedor — BOD-002</span>
+    </button>
+    <button class="demo-btn" onclick="quickLogin('vend3')">
+      <span><b style="color:var(--text)">Luis Vendedor</b> — luis@granpoeta.cl</span>
+      <span class="role role-vend">Vendedor — BOD-003</span>
     </button>
   </div>
 </div>
@@ -114,10 +125,13 @@ async function doLogin() {
     localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
     // Redirigir según perfil
-    if (data.usuario.perfil === 'jefe_bodega') {
+    const perfil = data.usuario.perfil;
+    if (perfil === 'jefe_bodega') {
       window.location.href = 'dashboard_jefe.html';
-    } else {
+    } else if (perfil === 'bodeguero') {
       window.location.href = 'dashboard_bodeguero.html';
+    } else if (perfil === 'vendedor') {
+      window.location.href = 'dashboard_vendedor.html';
     }
 
   } catch (err) {
@@ -130,13 +144,17 @@ async function doLogin() {
 }
 
 function quickLogin(rol) {
-  if (rol === 'jefe') {
-    document.getElementById('inp-email').value = 'carlos@granpoeta.cl';
-    document.getElementById('inp-pass').value  = 'jefe123';
-  } else {
-    document.getElementById('inp-email').value = 'maria@granpoeta.cl';
-    document.getElementById('inp-pass').value  = 'bod123';
-  }
+  const creds = {
+    jefe:  { email: 'carlos@granpoeta.cl', pass: 'password123' },
+    bod:   { email: 'maria@granpoeta.cl',  pass: 'password123' },
+    vend1: { email: 'juan@granpoeta.cl',   pass: 'password123' },
+    vend2: { email: 'ana@granpoeta.cl',    pass: 'password123' },
+    vend3: { email: 'luis@granpoeta.cl',   pass: 'password123' },
+  };
+  const c = creds[rol];
+  if (!c) return;
+  document.getElementById('inp-email').value = c.email;
+  document.getElementById('inp-pass').value  = c.pass;
   doLogin();
 }
 </script>

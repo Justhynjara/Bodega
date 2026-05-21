@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Productos — El Gran Poeta</title>
-
+<script src="../api/api.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0C0F0A;--bg2:#141712;--bg3:#1C2018;--bg4:#242820;
+  --bg:#0C0F0A;--bg2:#141712;--bg3:#1C2018;
   --gold:#C9A84C;--gold3:#3D3010;
   --text:#E8E4DC;--text2:#9A9690;--text3:#5A5650;
   --green2:#4CAF6A;--red:#5C2A2A;--red2:#CF6A4C;
@@ -20,10 +19,11 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-size:14px
 .role{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
 .role-jefe{background:#2a1f0a;color:var(--gold);border:1px solid var(--gold3)}
 .role-bod{background:#0a1f2a;color:var(--blue2);border:1px solid #124a5e}
+.role-vend{background:#0a2a1a;color:var(--green2);border:1px solid #0a4a1a}
 .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px}
 .topbar-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);font-weight:700}
 .topbar-user{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
-.btn-logout{background:none;border:1px solid var(--border2);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-logout{background:none;border:1px solid var(--border2);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:var(--r2);cursor:pointer}
 .btn-logout:hover{border-color:var(--red2);color:var(--red2)}
 .layout{display:flex;height:calc(100vh - 58px)}
 .sidebar{width:215px;background:var(--bg2);border-right:1px solid var(--border);padding:1.25rem 0;flex-shrink:0;overflow-y:auto}
@@ -34,18 +34,10 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text);font-size:14px
 .sidebar-item.active{color:var(--gold);background:var(--bg3);border-left-color:var(--gold)}
 .si-icon{font-size:15px;width:18px;text-align:center}
 .main{flex:1;overflow-y:auto;padding:1.75rem 2rem}
-.page-header{margin-bottom:1.5rem}
+.page-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
 .page-header h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);font-weight:600}
 .page-header p{font-size:12px;color:var(--text3);margin-top:3px}
-.page-header-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
-.page-header-row .page-header{margin-bottom:0}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:1.5rem}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem;text-align:center}
-.stat-num{font-size:30px;font-weight:600;color:var(--gold);font-family:'Playfair Display',serif;display:block}
-.stat-lbl{font-size:11px;color:var(--text3);margin-top:3px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
-.card-header{padding:.875rem 1rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-header h3{font-size:13px;font-weight:500;color:var(--text)}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead tr{background:var(--bg3)}
 th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400}
@@ -56,32 +48,25 @@ tr:hover td{background:var(--bg3)}
 .b-libro{background:#1a2a1a;color:#4caf6a;border:1px solid #1a4a1a}
 .b-revista{background:#1a1a2a;color:#6a6acf;border:1px solid #1a1a4a}
 .b-enciclopedia{background:#2a1a1a;color:#cf6a4c;border:1px solid #4a1a1a}
-.b-ok{background:#0a2a1a;color:#4caf6a;border:1px solid #0a4a1a}
-.b-warn{background:#2a1a0a;color:#c9a84c;border:1px solid #3a2a0a}
-.btn{font-size:12px;padding:6px 14px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:opacity .2s;text-decoration:none;display:inline-block}
-.btn-gold{background:var(--gold);color:#0C0F0A;border:none}
+.btn{font-size:12px;padding:6px 14px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:opacity .2s;display:inline-block;border:none}
+.btn-gold{background:var(--gold);color:#0C0F0A}
 .btn-gold:hover{opacity:.85}
 .btn-ghost{background:none;border:1px solid var(--gold3);color:var(--gold)}
 .btn-ghost:hover{background:var(--gold3)}
 .btn-danger{background:none;border:1px solid var(--red);color:var(--red2)}
 .btn-danger:hover{background:var(--red)}
 .btn-sm{padding:4px 10px;font-size:11px}
-.form-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .form-field{margin-bottom:12px}
 .form-field label{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
 .form-field input,.form-field select,.form-field textarea{width:100%;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:none;border-color:var(--gold)}
 .form-field select option{background:#141712}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .divider{border:none;border-bottom:1px solid var(--border);margin:.875rem 0}
 .alert{padding:10px 14px;border-radius:var(--r2);font-size:12px;margin-bottom:12px}
 .alert-success{background:#0a2a1a;border:1px solid #1a4a2a;color:#7acf8a}
-.alert-info{background:#0a1a2a;border:1px solid #1a3a5a;color:#7aaacf}
 .alert-error{background:#2a0a0a;border:1px solid #4a1a1a;color:#cf8a7a}
-.mono{font-family:monospace;color:var(--gold);font-size:11px}
-.stock-ok{color:var(--green2);font-weight:500}
-.stock-warn{color:var(--gold);font-weight:500}
-.stock-low{color:var(--red2);font-weight:500}
+.alert-info{background:#0a1a2a;border:1px solid #1a3a5a;color:#7aaacf}
 .empty{text-align:center;padding:2rem;color:var(--text3);font-size:12px}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
@@ -90,140 +75,271 @@ tr:hover td{background:var(--bg3)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
 .modal-header h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold)}
 .btn-close{background:none;border:none;color:var(--text3);font-size:22px;cursor:pointer;line-height:1}
-.btn-close:hover{color:var(--text)}
+.stock-section{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:1rem;margin-top:.5rem}
+.stock-section p{font-size:11px;color:var(--text3);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.07em}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
-
-<script src="../api/api.js"></script>
 </head>
 <body>
-
-    <div class="topbar">
-      <div class="topbar-logo">📚 El Gran Poeta</div>
-      <div class="topbar-user">
-        <span>Carlos Rojas</span>
-        <span class="role role-jefe">Jefe de Bodega</span>
-        <a href="login.html" class="btn-logout">Cerrar sesión</a>
-      </div>
-    </div>
+<div class="topbar">
+  <div class="topbar-logo">📚 El Gran Poeta</div>
+  <div class="topbar-user">
+    <span id="topbar-nombre"></span>
+    <span id="topbar-rol" class="role"></span>
+    <button id="btn-logout" class="btn-logout">Cerrar sesión</button>
+  </div>
+</div>
 <div class="layout">
-  <nav class="sidebar"><div class="sidebar-section"><div class="sidebar-label">General</div><a href="dashboard_jefe.html" class="sidebar-item"><span class="si-icon">◈</span> Panel general</a></div><div class="sidebar-section"><div class="sidebar-label">Gestión</div><a href="editoriales.html" class="sidebar-item"><span class="si-icon">⊙</span> Editoriales</a><a href="autores.html" class="sidebar-item"><span class="si-icon">✦</span> Autores</a><a href="productos.html" class="sidebar-item active"><span class="si-icon">◇</span> Productos</a><a href="bodegas.html" class="sidebar-item"><span class="si-icon">▣</span> Bodegas</a></div><div class="sidebar-section"><div class="sidebar-label">Operaciones</div><a href="inventario.html" class="sidebar-item"><span class="si-icon">≡</span> Inventario</a><a href="movimientos_jefe.html" class="sidebar-item"><span class="si-icon">⇄</span> Movimientos</a></div><div class="sidebar-section"><div class="sidebar-label">Informes</div><a href="informes.html" class="sidebar-item"><span class="si-icon">◉</span> Informes</a></div></nav>
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">General</div>
+      <a href="dashboard_jefe.html" class="sidebar-item"><span class="si-icon">◈</span> Panel general</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Gestión</div>
+      <a href="editoriales.html" class="sidebar-item"><span class="si-icon">⊙</span> Editoriales</a>
+      <a href="autores.html" class="sidebar-item"><span class="si-icon">✦</span> Autores</a>
+      <a href="productos.html" class="sidebar-item active"><span class="si-icon">◇</span> Productos</a>
+      <a href="bodegas.html" class="sidebar-item"><span class="si-icon">▣</span> Bodegas</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Operaciones</div>
+      <a href="inventario.html" class="sidebar-item"><span class="si-icon">≡</span> Inventario</a>
+      <a href="movimientos_jefe.html" class="sidebar-item"><span class="si-icon">⇄</span> Movimientos</a>
+    </div>
+  </nav>
   <div class="main">
-<div class="page-header-row">
-  <div class="page-header"><h2>Productos</h2><p>Libros, revistas y enciclopedias</p></div>
-  <button class="btn btn-gold" onclick="openModal('modal-producto')">+ Nuevo producto</button>
+    <div class="page-header-row">
+      <div class="page-header">
+        <h2>Productos</h2>
+        <p>Libros, revistas y enciclopedias</p>
+      </div>
+      <button class="btn btn-gold" onclick="openModal('modal-producto')">+ Nuevo producto</button>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th><th>Tipo</th><th>Editorial</th><th>Stock total</th><th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-productos">
+          <tr><td colspan="5" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<div class="card">
-  <table>
-    <thead><tr><th>Título</th><th>Tipo</th><th>Editorial</th><th>Autores</th><th>Acción</th></tr></thead>
-    <tbody>
-      <tr><td><div style="font-weight:500;color:var(--text)">Canto General</div><div style="font-size:11px;color:var(--text3)">Obra cumbre de Pablo Neruda</div></td><td><span class="badge b-libro">libro</span></td><td>Planeta</td><td>P. Neruda</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-      <tr><td><div style="font-weight:500;color:var(--text)">La Casa de los Espíritus</div><div style="font-size:11px;color:var(--text3)">Novela de Isabel Allende</div></td><td><span class="badge b-libro">libro</span></td><td>Alfaguara</td><td>I. Allende</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-      <tr><td><div style="font-weight:500;color:var(--text)">Historia Secreta de Chile</div><div style="font-size:11px;color:var(--text3)">Historia alternativa de Chile</div></td><td><span class="badge b-libro">libro</span></td><td>Zigzag</td><td>J. Baradit</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-      <tr><td><div style="font-weight:500;color:var(--text)">Poemas Selectos</div><div style="font-size:11px;color:var(--text3)">Antología de G. Mistral</div></td><td><span class="badge b-libro">libro</span></td><td>LOM Ediciones</td><td>G. Mistral</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-      <tr><td><div style="font-weight:500;color:var(--text)">Revista Qué Pasa</div><div style="font-size:11px;color:var(--text3)">Edición mensual</div></td><td><span class="badge b-revista">revista</span></td><td>Planeta</td><td>—</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-      <tr><td><div style="font-weight:500;color:var(--text)">Enciclopedia Chilena</div><div style="font-size:11px;color:var(--text3)">Vol. 1</div></td><td><span class="badge b-enciclopedia">enciclopedia</span></td><td>Zigzag</td><td>J. Baradit</td><td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td></tr>
-    </tbody>
-  </table>
-</div>
+
+<!-- Modal nuevo producto -->
 <div id="modal-producto" class="modal-bg">
   <div class="modal">
-    <div class="modal-header"><h3>Nuevo producto</h3><button class="btn-close" onclick="closeModal('modal-producto')">×</button></div>
-    <div id="prod-error" class="alert alert-error" style="display:none"></div>
-    <div class="form-field"><label>Título</label><input id="inp-titulo" type="text" placeholder="Título del producto"/></div>
-    <div class="form-row">
-      <div class="form-field"><label>Tipo</label><select id="sel-tipo"><option value="libro">libro</option><option value="revista">revista</option><option value="enciclopedia">enciclopedia</option></select></div>
-      <div class="form-field"><label>Editorial</label><select id="sel-editorial"><option value="">— Cargando… —</option></select></div>
+    <div class="modal-header">
+      <h3>Nuevo producto</h3>
+      <button class="btn-close" onclick="closeModal('modal-producto')">×</button>
     </div>
-    <div class="form-field"><label>Descripción</label><textarea id="txt-desc" rows="3" style="resize:vertical" placeholder="Breve resumen…"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:.5rem">
+    <div id="prod-error" class="alert alert-error" style="display:none"></div>
+
+    <div class="form-field"><label>Título</label>
+      <input id="inp-titulo" type="text" placeholder="Título del producto"/>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label>Tipo</label>
+        <select id="sel-tipo">
+          <option value="libro">Libro</option>
+          <option value="revista">Revista</option>
+          <option value="enciclopedia">Enciclopedia</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Editorial</label>
+        <select id="sel-editorial"><option value="">— Cargando… —</option></select>
+      </div>
+    </div>
+    <div class="form-field"><label>Descripción</label>
+      <textarea id="txt-desc" rows="2" style="resize:vertical" placeholder="Breve resumen…"></textarea>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Stock inicial -->
+    <div class="stock-section">
+      <p>📦 Stock inicial (opcional)</p>
+      <div class="form-row">
+        <div class="form-field"><label>Bodega</label>
+          <select id="sel-bodega-stock"><option value="">— Sin stock inicial —</option></select>
+        </div>
+        <div class="form-field"><label>Cantidad</label>
+          <input id="inp-cantidad" type="number" min="1" placeholder="0"/>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:1rem">
       <button class="btn btn-ghost" onclick="closeModal('modal-producto')">Cancelar</button>
       <button id="btn-guardar-prod" class="btn btn-gold" onclick="guardarProducto()">Guardar</button>
     </div>
   </div>
 </div>
-</div>
-</div>
 
-<div id="modal-nodelete" class="modal-bg">
+<!-- Modal confirmar eliminación -->
+<div id="modal-eliminar" class="modal-bg">
   <div class="modal" style="max-width:380px">
     <div class="modal-header">
-      <h3 style="color:var(--red2)">No se puede eliminar</h3>
-      <button class="btn-close" onclick="document.getElementById('modal-nodelete').classList.remove('open')">×</button>
+      <h3 style="color:var(--red2)">Confirmar eliminación</h3>
+      <button class="btn-close" onclick="closeModal('modal-eliminar')">×</button>
     </div>
-    <p id="nodelete-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6"></p>
-    <button class="btn btn-ghost" onclick="document.getElementById('modal-nodelete').classList.remove('open')">Entendido</button>
+    <p id="msg-eliminar" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.6"></p>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="closeModal('modal-eliminar')">Cancelar</button>
+      <button id="btn-confirmar-elim" class="btn btn-danger">Eliminar</button>
+    </div>
   </div>
 </div>
+
+<!-- Modal éxito -->
 <div id="modal-ok" class="modal-bg">
   <div class="modal" style="max-width:340px;text-align:center">
     <div style="font-size:36px;margin-bottom:.75rem">✓</div>
-    <h3 style="color:var(--green2);margin-bottom:.75rem;font-family:'Playfair Display',serif">Guardado correctamente</h3>
+    <h3 style="color:var(--green2);margin-bottom:.75rem;font-family:'Playfair Display',serif">Listo</h3>
     <p id="ok-msg" style="font-size:13px;color:var(--text2);margin-bottom:1.25rem"></p>
-    <button class="btn btn-gold" onclick="document.getElementById('modal-ok').classList.remove('open')">Aceptar</button>
+    <button class="btn btn-gold" onclick="closeModal('modal-ok')">Aceptar</button>
   </div>
 </div>
+
 <script>
+let productoAEliminar = null;
+
+// ── Modal helpers ─────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-bg.open').forEach(m => m.classList.remove('open'));
+});
+
+// ── Cargar datos ──────────────────────────────────────────────
+async function cargarEditoriales() {
+  try {
+    const rows = await Editoriales.listar();
+    document.getElementById('sel-editorial').innerHTML =
+      '<option value="">— Seleccionar editorial —</option>' +
+      rows.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
+  } catch (e) { console.warn('Error cargando editoriales', e); }
+}
+
+async function cargarBodegas() {
+  try {
+    const rows = await Bodegas.listar();
+    document.getElementById('sel-bodega-stock').innerHTML =
+      '<option value="">— Sin stock inicial —</option>' +
+      rows.map(b => `<option value="${b.id}">${b.codigo} — ${b.nombre}</option>`).join('');
+  } catch (e) { console.warn('Error cargando bodegas', e); }
+}
+
+async function cargarProductos() {
+  try {
+    const rows = await Productos.listar();
+    // Para cada producto, calcular stock total
+    const inv  = await Inventario.listar();
+    const stockMap = {};
+    inv.forEach(i => { stockMap[i.producto_id] = (stockMap[i.producto_id] || 0) + i.cantidad; });
+
+    const tbody = document.getElementById('tbody-productos');
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">No hay productos registrados</td></tr>'; return; }
+
+    tbody.innerHTML = rows.map(p => `
+      <tr>
+        <td>
+          <div style="font-weight:500;color:var(--text)">${p.titulo}</div>
+          <div style="font-size:11px;color:var(--text3)">${p.descripcion || '—'}</div>
+        </td>
+        <td><span class="badge b-${p.tipo}">${p.tipo}</span></td>
+        <td>${p.editorial || '—'}</td>
+        <td style="font-weight:500;color:${(stockMap[p.id]||0) > 0 ? 'var(--green2)' : 'var(--red2)'}">
+          ${stockMap[p.id] || 0} uds.
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="pedirEliminar(${p.id}, '${p.titulo.replace(/'/g,"\\'")}', ${stockMap[p.id]||0})">
+            Eliminar
+          </button>
+        </td>
+      </tr>`).join('');
+  } catch (e) { console.error('Error cargando productos', e); }
+}
+
+// ── Guardar producto ──────────────────────────────────────────
 async function guardarProducto() {
-  const titulo = document.getElementById('inp-titulo').value.trim();
-  const tipo = document.getElementById('sel-tipo').value;
+  const titulo       = document.getElementById('inp-titulo').value.trim();
+  const tipo         = document.getElementById('sel-tipo').value;
   const editorial_id = document.getElementById('sel-editorial').value;
-  const descripcion = document.getElementById('txt-desc').value.trim();
-  const errEl = document.getElementById('prod-error');
+  const descripcion  = document.getElementById('txt-desc').value.trim();
+  const bodega_id    = document.getElementById('sel-bodega-stock').value;
+  const cantidad     = parseInt(document.getElementById('inp-cantidad').value) || 0;
+  const errEl        = document.getElementById('prod-error');
+
   errEl.style.display = 'none';
   if (!titulo) { errEl.textContent = 'El título es obligatorio.'; errEl.style.display = 'block'; return; }
-  if (!editorial_id) { errEl.textContent = 'Selecciona una editorial.'; errEl.style.display = 'block'; return; }
+
   const btn = document.getElementById('btn-guardar-prod');
   btn.textContent = 'Guardando…'; btn.disabled = true;
+
   try {
-    await Productos.crear({ titulo, tipo, descripcion, editorial_id });
+    await Productos.crear({ titulo, tipo, descripcion, editorial_id: editorial_id || null, bodega_id: bodega_id || null, cantidad });
     closeModal('modal-producto');
-    document.getElementById('ok-msg').textContent = 'Producto guardado correctamente.';
+    // Limpiar modal
+    document.getElementById('inp-titulo').value = '';
+    document.getElementById('txt-desc').value   = '';
+    document.getElementById('inp-cantidad').value = '';
+    document.getElementById('sel-bodega-stock').value = '';
+    document.getElementById('ok-msg').textContent = bodega_id && cantidad
+      ? `Producto creado con ${cantidad} unidades de stock inicial.`
+      : 'Producto creado correctamente.';
     openModal('modal-ok');
     await cargarProductos();
   } catch (err) {
-    errEl.textContent = 'Error: ' + err.message;
+    errEl.textContent  = 'Error: ' + err.message;
     errEl.style.display = 'block';
   } finally {
     btn.textContent = 'Guardar'; btn.disabled = false;
   }
 }
-async function cargarEditoriales() {
+
+// ── Eliminar producto ─────────────────────────────────────────
+function pedirEliminar(id, titulo, stock) {
+  productoAEliminar = id;
+  const msg = document.getElementById('msg-eliminar');
+  if (stock > 0) {
+    msg.innerHTML = `<strong style="color:var(--red2)">${titulo}</strong> tiene <strong>${stock} unidades</strong> en stock. No se puede eliminar hasta que el stock sea 0.`;
+    document.getElementById('btn-confirmar-elim').style.display = 'none';
+  } else {
+    msg.innerHTML = `¿Eliminar <strong style="color:var(--text)">${titulo}</strong>? Esta acción no se puede deshacer.`;
+    document.getElementById('btn-confirmar-elim').style.display = 'inline-block';
+  }
+  openModal('modal-eliminar');
+}
+
+document.getElementById('btn-confirmar-elim').onclick = async () => {
+  if (!productoAEliminar) return;
   try {
-    const rows = await apiFetch('/editoriales');
-    const sel = document.getElementById('sel-editorial');
-    sel.innerHTML = '<option value="">— Seleccionar editorial —</option>' +
-      rows.map(e => `<option value="${e.id}">${e.nombre}</option>`).join('');
-  } catch (e) { console.warn('No se pudo cargar editoriales', e); }
-}
-async function cargarProductos() {
-  try {
-    const rows = await Productos.listar();
-    const tbody = document.querySelector('table tbody');
-    if (!tbody) return;
-    tbody.innerHTML = rows.map(p => `
-      <tr>
-        <td><div style="font-weight:500;color:var(--text)">${p.titulo}</div><div style="font-size:11px;color:var(--text3)">${p.descripcion || ''}</div></td>
-        <td><span class="badge b-${p.tipo}">${p.tipo}</span></td>
-        <td>${p.editorial || '—'}</td>
-        <td>—</td>
-        <td><button class="btn btn-danger btn-sm" onclick="noDelete('producto')">Eliminar</button></td>
-      </tr>`).join('');
-  } catch (e) { console.warn('No se pudo cargar productos', e); }
-}
-function noDelete(tipo){
-  const msgs={editorial:'No se puede eliminar: la editorial tiene productos asignados.',autor:'No se puede eliminar: el autor tiene productos asignados.',producto:'No se puede eliminar: el producto tiene stock en bodegas.',bodega:'No se puede eliminar: la bodega tiene productos en stock.'};
-  document.getElementById('nodelete-msg').textContent=msgs[tipo];
-  document.getElementById('modal-nodelete').classList.add('open');
-}
-function openModal(id){document.getElementById(id).classList.add('open');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
+    await Productos.eliminar(productoAEliminar);
+    closeModal('modal-eliminar');
+    document.getElementById('ok-msg').textContent = 'Producto eliminado.';
+    openModal('modal-ok');
+    await cargarProductos();
+  } catch (err) {
+    closeModal('modal-eliminar');
+    alert('Error: ' + err.message);
+  }
+};
+
+// ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   requiereAuth();
   initTopbar();
   cargarEditoriales();
+  cargarBodegas();
   cargarProductos();
 });
-</script></body>
+</script>
+</body>
 </html>

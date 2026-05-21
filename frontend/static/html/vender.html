@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Nueva Venta — El Gran Poeta</title>
+<script src="../api/api.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0C0F0A;--bg2:#141712;--bg3:#1C2018;
+  --gold:#C9A84C;--gold3:#3D3010;
+  --text:#E8E4DC;--text2:#9A9690;--text3:#5A5650;
+  --green2:#4CAF6A;--red:#5C2A2A;--red2:#CF6A4C;
+  --blue2:#4A8ACF;--border:#2E2B26;--border2:#3A3631;
+  --r:10px;--r2:6px;font-family:'DM Sans',sans-serif;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text);font-size:14px}
+.role-vend{background:#0a2a1a;color:var(--green2);border:1px solid #0a4a1a}
+.role{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:58px}
+.topbar-logo{font-family:'Playfair Display',serif;font-size:18px;color:var(--gold);font-weight:700}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2)}
+.btn-logout{background:none;border:1px solid var(--border2);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:var(--r2);cursor:pointer}
+.btn-logout:hover{border-color:var(--red2);color:var(--red2)}
+.layout{display:flex;height:calc(100vh - 58px)}
+.sidebar{width:215px;background:var(--bg2);border-right:1px solid var(--border);padding:1.25rem 0;flex-shrink:0}
+.sidebar-section{margin-bottom:1.5rem}
+.sidebar-label{font-size:10px;letter-spacing:.12em;color:var(--text3);padding:0 1.25rem;margin-bottom:6px;text-transform:uppercase}
+.sidebar-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text2);font-size:13px;padding:8px 1.25rem;cursor:pointer;font-family:'DM Sans',sans-serif;border-left:2px solid transparent;text-decoration:none;transition:all .15s}
+.sidebar-item:hover{color:var(--text);background:var(--bg3)}
+.sidebar-item.active{color:var(--gold);background:var(--bg3);border-left-color:var(--gold)}
+.si-icon{font-size:15px;width:18px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:1.75rem 2rem;display:grid;grid-template-columns:1fr 340px;gap:1.5rem;align-items:start}
+.page-header{margin-bottom:1.25rem}
+.page-header h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--text)}
+.page-header p{font-size:12px;color:var(--text3);margin-top:3px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.card-header{padding:.875rem 1.25rem;border-bottom:1px solid var(--border)}
+.card-header h3{font-size:13px;font-weight:500;color:var(--text2)}
+.card-body{padding:1.25rem}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--bg3)}
+th{padding:8px 12px;text-align:left;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-weight:400}
+td{padding:9px 12px;border-bottom:1px solid var(--bg3);color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.form-field{margin-bottom:10px}
+.form-field label{display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.form-field input,.form-field select{width:100%;background:#0C0F0A;border:1px solid var(--border2);border-radius:var(--r2);color:var(--text);font-size:12px;padding:8px 10px;font-family:'DM Sans',sans-serif}
+.form-field input:focus,.form-field select:focus{outline:none;border-color:var(--gold)}
+.form-row{display:grid;grid-template-columns:1fr 80px;gap:8px}
+.btn{font-size:12px;padding:8px 16px;border-radius:var(--r2);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;border:none;transition:opacity .2s}
+.btn-gold{background:var(--gold);color:#0C0F0A;width:100%;padding:10px}
+.btn-gold:hover{opacity:.85}
+.btn-ghost{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-rm{background:none;border:none;color:var(--red2);cursor:pointer;font-size:16px;padding:2px 6px}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-top:1px solid var(--border)}
+.total-label{font-size:12px;color:var(--text3)}
+.total-value{font-size:18px;font-weight:600;color:var(--gold);font-family:'Playfair Display',serif}
+.alert{padding:10px 14px;border-radius:var(--r2);font-size:12px;margin-bottom:10px}
+.alert-error{background:#2a0a0a;border:1px solid #4a1a1a;color:#cf8a7a}
+.alert-success{background:#0a2a1a;border:1px solid #1a4a2a;color:#7acf8a}
+.empty{text-align:center;padding:1.5rem;color:var(--text3);font-size:12px}
+.stock-info{font-size:10px;color:var(--text3);margin-top:3px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:360px;text-align:center;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold3));border-radius:14px 14px 0 0}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-logo">📚 El Gran Poeta</div>
+  <div class="topbar-user">
+    <span id="topbar-nombre"></span>
+    <span id="topbar-rol" class="role role-vend"></span>
+    <button id="btn-logout" class="btn-logout">Cerrar sesión</button>
+  </div>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mi bodega</div>
+      <a href="dashboard_vendedor.html" class="sidebar-item"><span class="si-icon">◈</span> Panel</a>
+      <a href="vender.html" class="sidebar-item active"><span class="si-icon">$</span> Nueva venta</a>
+      <a href="devolucion.html" class="sidebar-item"><span class="si-icon">↩</span> Devolución</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Consultas</div>
+      <a href="stock_vendedor.html" class="sidebar-item"><span class="si-icon">≡</span> Ver stock</a>
+      <a href="historial_vendedor.html" class="sidebar-item"><span class="si-icon">⇄</span> Historial</a>
+    </div>
+  </nav>
+
+  <!-- Columna izquierda: selección de productos -->
+  <div>
+    <div class="page-header">
+      <h2>Nueva Venta</h2>
+      <p>Selecciona los productos a vender</p>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Agregar producto</h3></div>
+      <div class="card-body">
+        <div class="form-field">
+          <label>Producto</label>
+          <select id="sel-prod" onchange="actualizarStockInfo()">
+            <option value="">— Cargando productos… —</option>
+          </select>
+          <div class="stock-info" id="stock-info"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Cantidad</label>
+            <input id="inp-qty" type="number" min="1" value="1" placeholder="1"/>
+          </div>
+          <div class="form-field">
+            <label>Precio</label>
+            <input id="inp-precio" type="number" min="0" step="100" placeholder="0"/>
+          </div>
+        </div>
+        <button class="btn btn-ghost" style="width:100%;margin-top:4px" onclick="agregarProducto()">+ Agregar</button>
+      </div>
+    </div>
+
+    <!-- Lista de stock disponible -->
+    <div class="card" style="margin-top:1rem">
+      <div class="card-header"><h3>Stock disponible</h3></div>
+      <table>
+        <thead><tr><th>Producto</th><th>Disponible</th></tr></thead>
+        <tbody id="tbody-stock">
+          <tr><td colspan="2" class="empty">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Columna derecha: carrito -->
+  <div>
+    <div class="page-header">
+      <h2>Carrito</h2>
+      <p>Productos a cobrar</p>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Detalle de venta</h3></div>
+      <div class="card-body" id="carrito-body">
+        <div class="empty" id="carrito-empty">Sin productos agregados</div>
+        <table id="tabla-carrito" style="display:none">
+          <thead><tr><th>Producto</th><th>Qty</th><th>Precio</th><th></th></tr></thead>
+          <tbody id="tbody-carrito"></tbody>
+        </table>
+        <div class="total-row" id="total-row" style="display:none">
+          <span class="total-label">Total</span>
+          <span class="total-value" id="total-valor">$0</span>
+        </div>
+        <div id="venta-error" class="alert alert-error" style="display:none"></div>
+        <button id="btn-vender" class="btn btn-gold" style="margin-top:.75rem;display:none" onclick="registrarVenta()">
+          Registrar venta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal éxito -->
+<div id="modal-ok" class="modal-bg">
+  <div class="modal">
+    <div style="font-size:40px;margin-bottom:.75rem">✓</div>
+    <h3 style="color:var(--green2);margin-bottom:.5rem;font-family:'Playfair Display',serif">Venta registrada</h3>
+    <p id="ok-msg" style="font-size:12px;color:var(--text2);margin-bottom:1.25rem"></p>
+    <button class="btn btn-gold" onclick="location.reload()">Nueva venta</button>
+    <button class="btn btn-ghost" style="margin-top:8px;width:100%" onclick="window.location.href='dashboard_vendedor.html'">Ir al panel</button>
+  </div>
+</div>
+
+<script>
+let stockDisponible = [];
+let carrito = [];
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+
+async function cargarStock() {
+  try {
+    stockDisponible = await Ventas.stock();
+    const sel = document.getElementById('sel-prod');
+    sel.innerHTML = '<option value="">— Seleccionar producto —</option>' +
+      stockDisponible.map(s =>
+        `<option value="${s.producto_id}" data-stock="${s.cantidad}" data-nombre="${s.titulo}">
+          ${s.titulo} (${s.cantidad} disp.)
+        </option>`
+      ).join('');
+
+    const tbody = document.getElementById('tbody-stock');
+    if (!stockDisponible.length) {
+      tbody.innerHTML = '<tr><td colspan="2" class="empty">Sin stock disponible</td></tr>';
+    } else {
+      tbody.innerHTML = stockDisponible.map(s => {
+        const cls = s.cantidad >= 10 ? 'color:var(--green2)' : s.cantidad > 0 ? 'color:#cfaa4c' : 'color:var(--red2)';
+        return `<tr>
+          <td style="color:var(--text)">${s.titulo}</td>
+          <td style="${cls};font-weight:500">${s.cantidad}</td>
+        </tr>`;
+      }).join('');
+    }
+  } catch(e) { console.error(e); }
+}
+
+function actualizarStockInfo() {
+  const sel = document.getElementById('sel-prod');
+  const opt = sel.options[sel.selectedIndex];
+  const info = document.getElementById('stock-info');
+  if (!opt || !opt.value) { info.textContent = ''; return; }
+  info.textContent = `Disponible: ${opt.dataset.stock} unidades`;
+}
+
+function agregarProducto() {
+  const sel    = document.getElementById('sel-prod');
+  const id     = sel.value;
+  const nombre = sel.options[sel.selectedIndex]?.dataset.nombre;
+  const stock  = parseInt(sel.options[sel.selectedIndex]?.dataset.stock) || 0;
+  const qty    = parseInt(document.getElementById('inp-qty').value) || 1;
+  const precio = parseFloat(document.getElementById('inp-precio').value) || 0;
+
+  if (!id)     { alert('Selecciona un producto.'); return; }
+  if (qty < 1) { alert('La cantidad debe ser al menos 1.'); return; }
+  if (qty > stock) { alert(`Stock insuficiente. Disponible: ${stock}`); return; }
+
+  const existe = carrito.find(c => c.id == id);
+  if (existe) {
+    if (existe.cantidad + qty > stock) { alert(`Stock insuficiente. Disponible: ${stock}`); return; }
+    existe.cantidad += qty;
+    existe.precio    = precio;
+  } else {
+    carrito.push({ id, nombre, cantidad: qty, precio });
+  }
+  renderCarrito();
+}
+
+function quitarDelCarrito(i) {
+  carrito.splice(i, 1);
+  renderCarrito();
+}
+
+function renderCarrito() {
+  const empty  = document.getElementById('carrito-empty');
+  const tabla  = document.getElementById('tabla-carrito');
+  const totRow = document.getElementById('total-row');
+  const btnV   = document.getElementById('btn-vender');
+
+  if (!carrito.length) {
+    empty.style.display  = 'block';
+    tabla.style.display  = 'none';
+    totRow.style.display = 'none';
+    btnV.style.display   = 'none';
+    return;
+  }
+  empty.style.display  = 'none';
+  tabla.style.display  = 'table';
+  totRow.style.display = 'flex';
+  btnV.style.display   = 'block';
+
+  document.getElementById('tbody-carrito').innerHTML = carrito.map((c, i) => `
+    <tr>
+      <td style="color:var(--text)">${c.nombre}</td>
+      <td>${c.cantidad}</td>
+      <td>$${c.precio.toLocaleString('es-CL')}</td>
+      <td><button class="btn-rm" onclick="quitarDelCarrito(${i})">✕</button></td>
+    </tr>`).join('');
+
+  const total = carrito.reduce((s, c) => s + c.cantidad * c.precio, 0);
+  document.getElementById('total-valor').textContent = '$' + total.toLocaleString('es-CL');
+}
+
+async function registrarVenta() {
+  const errEl = document.getElementById('venta-error');
+  errEl.style.display = 'none';
+  if (!carrito.length) return;
+
+  const btn = document.getElementById('btn-vender');
+  btn.textContent = 'Registrando…'; btn.disabled = true;
+
+  try {
+    const detalle = carrito.map(c => ({
+      producto_id:     c.id,
+      cantidad:        c.cantidad,
+      precio_unitario: c.precio
+    }));
+    const res = await Ventas.registrar({ detalle });
+    const total = carrito.reduce((s, c) => s + c.cantidad * c.precio, 0);
+    document.getElementById('ok-msg').textContent =
+      `Venta #${res.id} registrada. Total: $${total.toLocaleString('es-CL')}`;
+    carrito = [];
+    openModal('modal-ok');
+  } catch(err) {
+    errEl.textContent  = err.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Registrar venta'; btn.disabled = false;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  requiereAuth();
+  initTopbar();
+  const u = obtenerUsuario();
+  if (u && u.perfil !== 'vendedor') window.location.href = 'dashboard_jefe.html';
+  cargarStock();
+});
+</script>
+</body>
+</html>
